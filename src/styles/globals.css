@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Atlas Design System — Design Tokens
+  =====================================
+  Dark mode is the default experience (class="dark" applied on <html> by default).
+  Light mode is opt-in via Settings, toggled with next-themes.
+
+  Color values are HSL triplets (no "hsl()" wrapper) so Tailwind can apply
+  opacity modifiers like bg-primary/50 directly.
+*/
+
+@layer base {
+  :root {
+    /* Font stacks — system fonts by default. If next/font Google Fonts
+       is reachable in your build environment, you can reintroduce
+       Inter/JetBrains Mono in app/layout.tsx; these variables keep
+       Tailwind's config stable either way. */
+    --font-inter: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-jetbrains-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+
+    /* ── Light mode ──────────────────────────────────────────────────────── */
+    --background: 0 0% 100%;
+    --foreground: 240 6% 10%;
+
+    --surface: 240 20% 98%;
+    --surface-2: 240 14% 95%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 6% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 10%;
+
+    --border: 240 10% 90%;
+    --border-subtle: 240 10% 94%;
+    --input: 240 10% 90%;
+    --ring: 239 84% 67%;
+
+    --primary: 239 84% 67%;
+    --primary-hover: 239 84% 73%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 14% 95%;
+    --secondary-foreground: 240 6% 10%;
+
+    --muted: 240 14% 95%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent: 240 14% 95%;
+    --accent-foreground: 240 6% 10%;
+
+    --destructive: 0 72% 63%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 58%;
+    --warning: 43 96% 62%;
+    --danger: 0 91% 71%;
+    --info: 213 94% 68%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* ── Dark mode (default) ─────────────────────────────────────────────── */
+    --background: 240 8% 4%;
+    --foreground: 240 5% 93%;
+
+    --surface: 240 6% 8%;
+    --surface-2: 240 6% 11%;
+
+    --card: 240 6% 8%;
+    --card-foreground: 240 5% 93%;
+
+    --popover: 240 6% 9%;
+    --popover-foreground: 240 5% 93%;
+
+    --border: 240 5% 15%;
+    --border-subtle: 240 5% 12%;
+    --input: 240 5% 15%;
+    --ring: 239 84% 67%;
+
+    --primary: 239 84% 67%;
+    --primary-hover: 238 89% 74%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 13%;
+    --secondary-foreground: 240 5% 93%;
+
+    --muted: 240 5% 13%;
+    --muted-foreground: 240 4% 63%;
+
+    --accent: 240 5% 15%;
+    --accent-foreground: 240 5% 93%;
+
+    --destructive: 0 72% 63%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 69% 58%;
+    --warning: 43 96% 62%;
+    --danger: 0 91% 71%;
+    --info: 213 94% 68%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans text-body;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Scrollbar discret, cohérent dark/light */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+
+  /* Sélection de texte cohérente avec l'accent */
+  ::selection {
+    @apply bg-primary/25 text-foreground;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Tabular numbers pour tous les chiffres alignés (scores, stats) */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
