@@ -36,7 +36,7 @@ export function NotificationBell({ count = 0, className }: NotificationBellProps
           )}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>Notifications</TooltipContent>
+      <TooltipContent>Notifications — coming soon</TooltipContent>
     </Tooltip>
   );
 }

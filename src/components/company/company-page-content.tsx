@@ -1,87 +1,104 @@
-"use client";
-
-import { useCompanyBySlug } from "@/hooks/use-companies";
-import { useCompanyOpportunity } from "@/hooks/use-opportunities";
-import { useCompanyEvents } from "@/hooks/use-events";
-import { useCompanyThemes } from "@/hooks/use-themes";
+import {
+  fetchCompanyBySlug,
+  fetchCompanyEvents,
+  fetchCompanyOpportunity,
+  fetchCompanySources,
+  fetchCompanyThemes,
+} from "@/lib/api/server-data";
+import { ServerApiError } from "@/lib/api/server";
 import { CompanyHeader } from "@/components/company/company-header";
 import { StatBar } from "@/components/company/stat-bar";
+import { CompanyTabs } from "@/components/company/company-tabs";
 import { OverviewTab } from "@/components/company/tabs/overview-tab";
 import { EventsTab } from "@/components/company/tabs/events-tab";
 import { ThemesTab } from "@/components/company/tabs/themes-tab";
 import { RelationsTab } from "@/components/company/tabs/relations-tab";
 import { SourcesTab } from "@/components/company/tabs/sources-tab";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ErrorState } from "@/components/shared/error-state";
+import { EmptyState } from "@/components/shared/empty-state";
+import type {
+  CompanyDiscoverySource,
+  CompanyResponse,
+  EventListItem,
+  OpportunityScoreResponse,
+  PaginatedResponse,
+  ThemeListItem,
+} from "@/types";
+import { notFound } from "next/navigation";
 
-export function CompanyPageContent({ slug }: { slug: string }) {
-  const { data: company, isLoading, error, refetch } = useCompanyBySlug(slug);
-  const { data: opportunity } = useCompanyOpportunity(company?.id);
-  const { data: recentEvents } = useCompanyEvents(company?.id, 1);
-  const { data: themes } = useCompanyThemes(company?.id);
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex gap-4">
-          <Skeleton className="h-14 w-14 rounded-md" />
-          <div className="space-y-2 flex-1">
-            <Skeleton className="h-7 w-64" />
-            <Skeleton className="h-4 w-40" />
-          </div>
-        </div>
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
+/**
+ * Company Detail is now a Server Component: the header, stat bar, and
+ * every tab's initial content render fully on the server in one request
+ * — no client-side loading flash when arriving from a Dashboard or
+ * Companies link (the two primary entry points).
+ *
+ * Data fetching strategy:
+ *   - `company` is fetched first and is load-bearing — a 404 here means
+ *     the page genuinely doesn't exist, so we call notFound().
+ *   - Opportunity, events, themes, and sources are fetched in parallel
+ *     once we have the company id. Each is independently optional: a
+ *     failure in any one of them degrades that section gracefully
+ *     (via SectionFallback) rather than taking down the whole page —
+ *     the same resilience principle used for the Dashboard in Sprint 2.
+ *   - Interactive tabs (Events pagination, Relations selection) stay
+ *     Client Components, but are seeded with the server-fetched page-1
+ *     data so they paint instantly and only hit the network again on
+ *     real user interaction (see EventsTab's initialEvents prop).
+ *   - CompanyTabs (client) only owns which tab is active — every tab
+ *     body below is still a Server Component rendered on the initial
+ *     request, just conditionally shown/hidden client-side.
+ */
+export async function CompanyPageContent({ slug }: { slug: string }) {
+  let company: CompanyResponse;
+  try {
+    company = await fetchCompanyBySlug(slug);
+  } catch (err) {
+    if (err instanceof ServerApiError && err.status === 404) {
+      notFound();
+    }
+    throw err;
   }
 
-  if (error || !company) {
-    return <ErrorState error={error} onRetry={refetch} />;
-  }
+  const [opportunityResult, eventsResult, themesResult, sourcesResult] = await Promise.allSettled([
+    fetchCompanyOpportunity(company.id),
+    fetchCompanyEvents(company.id, 20),
+    fetchCompanyThemes(company.id),
+    fetchCompanySources(company.id),
+  ]);
+
+  const opportunity: OpportunityScoreResponse | undefined =
+    opportunityResult.status === "fulfilled" ? opportunityResult.value : undefined;
+  const events: PaginatedResponse<EventListItem> | undefined =
+    eventsResult.status === "fulfilled" ? eventsResult.value : undefined;
+  const themes: ThemeListItem[] = themesResult.status === "fulfilled" ? themesResult.value : [];
+  const sources: CompanyDiscoverySource[] =
+    sourcesResult.status === "fulfilled" ? sourcesResult.value : [];
 
   return (
     <div className="space-y-6">
       <CompanyHeader company={company} opportunity={opportunity} />
       <StatBar company={company} />
 
-      <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="events" id="events">
-            Events
-          </TabsTrigger>
-          <TabsTrigger value="themes">Themes</TabsTrigger>
-          <TabsTrigger value="relations">Relations</TabsTrigger>
-          <TabsTrigger value="sources">Sources</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
+      <CompanyTabs
+        overview={
           <OverviewTab
             company={company}
             opportunity={opportunity}
-            recentEvents={recentEvents?.items}
+            recentEvents={events?.items}
             themes={themes}
+            sourcesCount={sources.length}
           />
-        </TabsContent>
-
-        <TabsContent value="events">
-          <EventsTab companyId={company.id} />
-        </TabsContent>
-
-        <TabsContent value="themes">
-          <ThemesTab companyId={company.id} />
-        </TabsContent>
-
-        <TabsContent value="relations">
-          <RelationsTab companyId={company.id} companySlug={company.slug} />
-        </TabsContent>
-
-        <TabsContent value="sources">
-          <SourcesTab />
-        </TabsContent>
-      </Tabs>
+        }
+        events={
+          eventsResult.status === "fulfilled" ? (
+            <EventsTab companyId={company.id} initialEvents={events} />
+          ) : (
+            <EmptyState variant="error" title="Couldn't load events" className="py-16" />
+          )
+        }
+        themes={<ThemesTab themes={themes} />}
+        relations={<RelationsTab companyId={company.id} companySlug={company.slug} />}
+        sources={<SourcesTab sources={sources} />}
+      />
     </div>
   );
 }

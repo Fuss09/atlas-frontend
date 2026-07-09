@@ -9,12 +9,16 @@ interface ScoreBadgeProps {
   className?: string;
 }
 
+/**
+ * Mirrors backend/app/engines/opportunity.py _conviction_from_score
+ * exactly — used as a client-side fallback only when a conviction
+ * level isn't already provided by the API response.
+ */
 function convictionFromScore(score: number): ConvictionLevel {
-  if (score <= 20) return "very_low";
-  if (score <= 40) return "low";
-  if (score <= 60) return "moderate";
-  if (score <= 80) return "high";
-  return "very_high";
+  if (score >= 80) return "very_high";
+  if (score >= 60) return "high";
+  if (score >= 40) return "moderate";
+  return "low";
 }
 
 /**
@@ -33,9 +37,7 @@ export function ScoreBadge({ score, conviction, size = "md", showLabel = false, 
         ? "text-success border-success/25 bg-success/[0.07]"
         : level === "moderate"
           ? "text-warning border-warning/25 bg-warning/10"
-          : level === "low"
-            ? "text-muted-foreground border-border bg-secondary"
-            : "text-danger border-danger/25 bg-danger/10";
+          : "text-muted-foreground border-border bg-secondary";
 
   const sizeClass =
     size === "lg"

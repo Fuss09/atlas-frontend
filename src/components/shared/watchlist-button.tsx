@@ -20,6 +20,13 @@ interface WatchlistButtonProps {
  * The button is fully wired for UI state and interaction so it can be
  * connected to a real mutation the moment the Watchlist module ships —
  * no visual or layout changes will be required at that point.
+ *
+ * The tooltip says "not saved yet" rather than a plain "Add to
+ * watchlist" — toggling the star does change visually, and without
+ * that context a tester would reasonably expect it to persist across
+ * a reload, then be confused when it doesn't. Honest about the
+ * placeholder's current limits rather than silently simulating a
+ * feature that isn't there yet.
  */
 export function WatchlistButton({ companyId: _companyId, isWatched = false, size = "icon", className }: WatchlistButtonProps) {
   const [watched, setWatched] = React.useState(isWatched);
@@ -45,7 +52,9 @@ export function WatchlistButton({ companyId: _companyId, isWatched = false, size
           <Star className={cn("h-4 w-4", watched && "fill-current")} />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>{watched ? "Remove from watchlist" : "Add to watchlist"}</TooltipContent>
+      <TooltipContent>
+        {watched ? "Removed (not saved yet)" : "Watchlist — coming soon"}
+      </TooltipContent>
     </Tooltip>
   );
 }

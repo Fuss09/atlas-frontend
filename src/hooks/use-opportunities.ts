@@ -3,15 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { opportunitiesApi } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
+import type { OpportunitySearchParams } from "@/types";
 
-export function useOpportunities(params?: {
-  conviction?: string;
-  sector?: string;
-  theme_id?: string;
-  min_score?: number;
-  page?: number;
-  page_size?: number;
-}) {
+export function useOpportunities(params?: OpportunitySearchParams) {
   return useQuery({
     queryKey: queryKeys.opportunities.list(params ?? {}),
     queryFn: () => opportunitiesApi.list(params),

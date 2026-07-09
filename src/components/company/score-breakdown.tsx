@@ -3,28 +3,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { OpportunityScoreResponse } from "@/types";
 
+/**
+ * Human labels for known component ids. Falls back to a capitalized
+ * version of the raw key for any component the backend adds later —
+ * this list intentionally isn't exhaustive so new components never
+ * render blank.
+ */
 const COMPONENT_LABELS: Record<string, string> = {
-  events_score: "Events",
-  theme_strength_score: "Theme Strength",
-  company_quality_score: "Company Quality",
-  discovery_signals_score: "Discovery Signals",
-  market_signals_score: "Market Signals",
+  events: "Events",
+  theme_strength: "Theme Strength",
+  company_quality: "Company Quality",
+  discovery_signals: "Discovery Signals",
+  market_signals: "Market Signals",
 };
+
+function labelFor(key: string): string {
+  return COMPONENT_LABELS[key] ?? key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 interface ScoreBreakdownProps {
   opportunity: OpportunityScoreResponse;
 }
 
+/**
+ * Renders the exact backend contract: opportunity.components is a dict
+ * keyed by component id, each with its own value (nullable when
+ * is_connected is false — e.g. Market Signals isn't wired to live
+ * pricing data yet). The backend also aggregates the overall positive/
+ * negative factors at the top level (opportunity.positive_factors /
+ * negative_factors) — used directly here rather than re-deriving them
+ * from per-component lists, since the backend's aggregation is the
+ * source of truth for "what matters most" ordering.
+ */
 export function ScoreBreakdown({ opportunity }: ScoreBreakdownProps) {
-  const components = [
-    { key: "events_score", value: opportunity.events_score },
-    { key: "theme_strength_score", value: opportunity.theme_strength_score },
-    { key: "company_quality_score", value: opportunity.company_quality_score },
-    { key: "discovery_signals_score", value: opportunity.discovery_signals_score },
-    { key: "market_signals_score", value: opportunity.market_signals_score },
-  ];
-
-  const isMarketSignalsStub = opportunity.market_signals_score === 0;
+  const entries = Object.entries(opportunity.components);
 
   return (
     <Card>
@@ -33,28 +45,27 @@ export function ScoreBreakdown({ opportunity }: ScoreBreakdownProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3">
-          {components.map(({ key, value }) => {
-            const isStub = key === "market_signals_score";
-            return (
-              <div key={key} className="space-y-1">
-                <div className="flex items-center justify-between text-body-sm">
-                  <span className="text-foreground">{COMPONENT_LABELS[key]}</span>
-                  <span className="font-mono tabular-nums text-muted-foreground">
-                    {isStub && isMarketSignalsStub ? "Not yet connected" : `${Math.round(value)}/100`}
-                  </span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
-                  <div
-                    className={cn(
-                      "h-full rounded-full bg-primary transition-all duration-400",
-                      isStub && isMarketSignalsStub && "bg-muted-foreground/30",
-                    )}
-                    style={{ width: `${Math.min(value, 100)}%` }}
-                  />
-                </div>
+          {entries.map(([key, component]) => (
+            <div key={key} className="space-y-1">
+              <div className="flex items-center justify-between text-body-sm">
+                <span className="text-foreground">{labelFor(key)}</span>
+                <span className="font-mono tabular-nums text-muted-foreground">
+                  {component.is_connected && component.value !== null
+                    ? `${Math.round(component.value)}/100`
+                    : "Not yet connected"}
+                </span>
               </div>
-            );
-          })}
+              <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                <div
+                  className={cn(
+                    "h-full rounded-full bg-primary transition-all duration-400",
+                    !component.is_connected && "bg-muted-foreground/30",
+                  )}
+                  style={{ width: `${Math.min(component.value ?? 0, 100)}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
 
         {(opportunity.positive_factors.length > 0 || opportunity.negative_factors.length > 0) && (
@@ -91,6 +102,10 @@ export function ScoreBreakdown({ opportunity }: ScoreBreakdownProps) {
             )}
           </div>
         )}
+
+        <div className="pt-2 border-t border-border-subtle">
+          <p className="text-caption text-muted-foreground">{opportunity.stage_rationale}</p>
+        </div>
       </CardContent>
     </Card>
   );

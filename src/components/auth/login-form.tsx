@@ -57,6 +57,11 @@ export function LoginForm() {
         {login.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
         Sign in
       </Button>
+
+      <p className="text-center text-caption text-muted-foreground">
+        Most of Atlas — Dashboard, Companies, Opportunities, Themes, Events, and the Graph — is
+        browsable without an account. Sign in only if you need Settings or admin actions.
+      </p>
     </form>
   );
 }

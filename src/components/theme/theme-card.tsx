@@ -1,9 +1,8 @@
 import Link from "next/link";
-import * as Icons from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { resolveThemeIcon } from "@/lib/theme-icon";
 import type { ThemeListItem } from "@/types";
 
 const MATURITY_LABEL: Record<string, string> = {
@@ -12,15 +11,6 @@ const MATURITY_LABEL: Record<string, string> = {
   mature: "Mature",
 };
 
-function resolveIcon(name: string | null): LucideIcon {
-  if (!name) return Icons.Sparkles;
-  const pascal = name
-    .split("-")
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-    .join("");
-  return (Icons as unknown as Record<string, LucideIcon>)[pascal] ?? Icons.Sparkles;
-}
-
 interface ThemeCardProps {
   theme: ThemeListItem;
   variant?: "dashboard" | "list";
@@ -28,7 +18,7 @@ interface ThemeCardProps {
 }
 
 export function ThemeCard({ theme, variant = "list", className }: ThemeCardProps) {
-  const Icon = resolveIcon(theme.icon);
+  const Icon = resolveThemeIcon(theme.icon);
   const accentColor = theme.color ?? "#6366F1";
 
   if (variant === "dashboard") {

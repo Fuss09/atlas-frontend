@@ -29,15 +29,6 @@ export function useEventTypes() {
   });
 }
 
-export function useCompanyEvents(companyId: string | undefined, page = 1) {
-  return useQuery({
-    queryKey: queryKeys.events.forCompany(companyId ?? "", page),
-    queryFn: () => eventsApi.getForCompany(companyId as string, page),
-    enabled: !!companyId,
-    placeholderData: (prev) => prev,
-  });
-}
-
 export function useCompanyEventStats(companyId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.events.statsForCompany(companyId ?? ""),

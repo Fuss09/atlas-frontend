@@ -1,13 +1,16 @@
 "use client";
 
+import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, UserX } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export function SettingsContent() {
   const { theme, setTheme } = useTheme();
@@ -46,14 +49,14 @@ export function SettingsContent() {
         <CardHeader>
           <CardTitle>Account</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="space-y-2">
+            <div className="space-y-2 p-6 pt-0">
               <Skeleton className="h-4 w-48" />
               <Skeleton className="h-4 w-32" />
             </div>
           ) : user ? (
-            <div className="space-y-3 text-body-sm">
+            <div className="space-y-3 text-body-sm px-6 pb-6">
               <Row label="Name" value={user.name} />
               <Separator />
               <Row label="Email" value={user.email} />
@@ -61,7 +64,17 @@ export function SettingsContent() {
               <Row label="Role" value={user.role} className="capitalize" />
             </div>
           ) : (
-            <p className="text-body-sm text-muted-foreground">Not signed in.</p>
+            <EmptyState
+              icon={UserX}
+              title="Not signed in"
+              description="Sign in to see your account details and personalize Atlas."
+              action={
+                <Button asChild size="sm" className="mt-1">
+                  <Link href="/login">Sign in</Link>
+                </Button>
+              }
+              className="border-none py-10"
+            />
           )}
         </CardContent>
       </Card>

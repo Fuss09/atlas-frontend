@@ -3,13 +3,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { graphApi } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
-import type { EntityType, RelationType } from "@/types";
+import type { CompanyGraphResponse, EntityType, RelationType } from "@/types";
 
-export function useCompanyGraph(companyId: string | undefined, depth = 1) {
+export function useCompanyGraph(
+  companyId: string | undefined,
+  depth = 1,
+  initialData?: CompanyGraphResponse,
+) {
   return useQuery({
     queryKey: queryKeys.graph.forCompany(companyId ?? "", depth),
     queryFn: () => graphApi.getCompanyGraph(companyId as string, depth),
     enabled: !!companyId,
+    // Only seed depth 1 — the server only ever pre-fetches the initial
+    // depth, so seeding any other depth would mislabel that data.
+    initialData: depth === 1 ? initialData : undefined,
   });
 }
 

@@ -30,7 +30,7 @@ export function ErrorState({ error, onRetry, className, compact = false }: Error
         <span>{message}</span>
         {onRetry && (
           <Button variant="ghost" size="sm" onClick={onRetry} className="h-6 px-2">
-            Retry
+            Try again
           </Button>
         )}
       </div>

@@ -54,7 +54,7 @@ export function CompanyHeader({ company, opportunity }: CompanyHeaderProps) {
           conviction={opportunity.conviction}
           delta7d={opportunity.delta_7d}
           confidence={opportunity.confidence}
-          updatedAt={opportunity.updated_at}
+          updatedAt={opportunity.calculated_at}
           size="lg"
           className="shrink-0"
         />

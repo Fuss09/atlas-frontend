@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
@@ -6,10 +7,28 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  /**
+   * "empty" (default): neutral, muted icon tint — nothing went wrong,
+   * there's just nothing here yet. "error": danger-tinted icon
+   * background, defaults to AlertTriangle when no icon is given.
+   * Server Component-safe either way (no hooks) — used identically by
+   * Server Components (Dashboard sections, *Results components) and
+   * Client Components (tabs, filters).
+   */
+  variant?: "empty" | "error";
   className?: string;
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  variant = "empty",
+  className,
+}: EmptyStateProps) {
+  const ResolvedIcon = Icon ?? (variant === "error" ? AlertTriangle : undefined);
+
   return (
     <div
       className={cn(
@@ -17,9 +36,16 @@ export function EmptyState({ icon: Icon, title, description, action, className }
         className,
       )}
     >
-      {Icon && (
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-          <Icon className="h-5 w-5 text-muted-foreground" />
+      {ResolvedIcon && (
+        <div
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-full",
+            variant === "error" ? "bg-danger/10" : "bg-secondary",
+          )}
+        >
+          <ResolvedIcon
+            className={cn("h-5 w-5", variant === "error" ? "text-danger" : "text-muted-foreground")}
+          />
         </div>
       )}
       <div className="space-y-1">

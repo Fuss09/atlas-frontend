@@ -12,7 +12,6 @@ const VARIANT_MAP: Record<ConvictionLevel, "success" | "warning" | "default" | "
   high: "success",
   moderate: "warning",
   low: "default",
-  very_low: "danger",
 };
 
 export function ConvictionLabel({ level, className }: ConvictionLabelProps) {

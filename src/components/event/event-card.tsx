@@ -7,12 +7,11 @@ import { EVENT_TYPE_META, type EventListItem } from "@/types";
 
 interface EventCardProps {
   event: EventListItem;
-  companyName?: string;
   variant?: "timeline" | "compact";
   className?: string;
 }
 
-export function EventCard({ event, companyName, variant = "compact", className }: EventCardProps) {
+export function EventCard({ event, variant = "compact", className }: EventCardProps) {
   const meta = EVENT_TYPE_META[event.event_type];
   const iconColor =
     meta.sentiment === "positive"
@@ -49,24 +48,39 @@ export function EventCard({ event, companyName, variant = "compact", className }
     );
   }
 
-  return (
-    <Link
-      href={`/companies/${event.company_id}`}
-      className={cn(
-        "flex items-center gap-3 py-2.5 px-1 rounded-md hover:bg-secondary/50 transition-colors group",
-        className,
-      )}
-    >
+  // company_slug falls back to "" for an orphaned event (company
+  // deleted after the event was recorded) — render as a non-link
+  // rather than a broken /companies/ URL, same pattern established
+  // for OpportunityCard in Sprint 4.
+  const href = event.company_slug ? `/companies/${event.company_slug}` : null;
+
+  const content = (
+    <>
       <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary", iconColor)}>
         <EventTypeIcon type={event.event_type} className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-body-sm text-foreground">{event.title}</p>
-        <p className="text-caption text-muted-foreground">
-          {companyName && <span>{companyName} · </span>}
-          {formatRelativeTime(event.occurred_at)}
+        <p className="text-caption text-muted-foreground truncate">
+          {event.company_name} · {formatRelativeTime(event.occurred_at)}
         </p>
       </div>
+    </>
+  );
+
+  const rowClassName = cn(
+    "flex items-center gap-3 py-2.5 px-1 rounded-md transition-colors group",
+    href && "hover:bg-secondary/50",
+    className,
+  );
+
+  if (!href) {
+    return <div className={rowClassName}>{content}</div>;
+  }
+
+  return (
+    <Link href={href} className={rowClassName}>
+      {content}
     </Link>
   );
 }
