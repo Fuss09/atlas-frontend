@@ -46,3 +46,19 @@ export interface TriggerJobRequest {
   source: string;
   params?: Record<string, unknown>;
 }
+
+/**
+ * Mirrors the exact dict shape returned by
+ * GET /companies/{id}/sources (backend/app/api/v1/endpoints/discovery.py,
+ * get_company_sources). Note this is a hand-built dict on the backend,
+ * not a Pydantic response_model — deliberately narrow to those 6 fields
+ * only (no job_id, no raw_data).
+ */
+export interface CompanyDiscoverySource {
+  id: UUID;
+  source: string;
+  action: "created" | "updated" | "skipped" | string;
+  external_id: string | null;
+  external_url: string | null;
+  created_at: ISODateString;
+}

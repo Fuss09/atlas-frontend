@@ -52,6 +52,15 @@ export interface NeighborResponse {
   relation_type: RelationType;
   weight: number;
   distance: number;
+  /**
+   * The parent node and relation edge this neighbor was discovered
+   * through during BFS traversal — required to reconstruct a properly
+   * connected multi-level graph rather than a flat fan around the
+   * center. See backend commit feat(graph): track parent node in BFS.
+   */
+  via_entity_type: EntityType;
+  via_entity_id: UUID;
+  via_relation_id: UUID;
 }
 
 export interface CompanyGraphResponse {
@@ -80,6 +89,35 @@ export const RELATION_TYPE_LABELS: Record<RelationType, string> = {
   owns: "Owns",
   customer_of: "Customer Of",
   supplier_of: "Supplier Of",
+};
+
+/**
+ * Semantic grouping for relation types — used to group the Relations
+ * tab and graph filters by what the connection *means* to an investor
+ * rather than a flat alphabetical list of 11 raw enum values, which
+ * reads as a wall of jargon rather than a story.
+ */
+export type RelationCategory = "market_position" | "business" | "ownership" | "membership";
+
+export const RELATION_CATEGORY_LABELS: Record<RelationCategory, string> = {
+  market_position: "Market Position",
+  business: "Business Relationships",
+  ownership: "Ownership & Investment",
+  membership: "Theme Membership",
+};
+
+export const RELATION_TYPE_CATEGORY: Record<RelationType, RelationCategory> = {
+  competes_with: "market_position",
+  supplies: "business",
+  supplier_of: "business",
+  customer_of: "business",
+  uses: "business",
+  partners_with: "business",
+  invests_in: "ownership",
+  owns: "ownership",
+  acquired: "ownership",
+  member_of_theme: "membership",
+  related_to: "market_position",
 };
 
 export const ENTITY_TYPE_LABELS: Record<EntityType, string> = {

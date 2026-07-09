@@ -28,6 +28,9 @@ export type ImportanceLevel = "low" | "medium" | "high" | "critical";
 export interface EventListItem {
   id: UUID;
   company_id: UUID;
+  company_name: string;
+  company_slug: string;
+  company_ticker: string | null;
   event_type: EventType;
   importance: ImportanceLevel;
   title: string;
@@ -76,6 +79,7 @@ export interface EventSearchParams {
   is_processed?: boolean;
   occurred_after?: string;
   occurred_before?: string;
+  q?: string;
   page?: number;
   page_size?: number;
 }

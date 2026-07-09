@@ -63,6 +63,29 @@ export interface CompanyResponse {
   updated_at: ISODateString;
 }
 
+export type CompanySortOption =
+  | "relevance"
+  | "name_asc"
+  | "name_desc"
+  | "market_cap_desc"
+  | "market_cap_asc"
+  | "score_desc"
+  | "score_asc"
+  | "founded_desc"
+  | "recently_updated";
+
+export const COMPANY_SORT_LABELS: Record<CompanySortOption, string> = {
+  relevance: "Most relevant",
+  name_asc: "Name (A–Z)",
+  name_desc: "Name (Z–A)",
+  market_cap_desc: "Market cap (high to low)",
+  market_cap_asc: "Market cap (low to high)",
+  score_desc: "Atlas score (high to low)",
+  score_asc: "Atlas score (low to high)",
+  founded_desc: "Recently founded",
+  recently_updated: "Recently updated",
+};
+
 export interface CompanySearchParams {
   q?: string;
   sector?: string;
@@ -74,6 +97,7 @@ export interface CompanySearchParams {
   min_market_cap?: number;
   max_market_cap?: number;
   min_atlas_score?: number;
+  sort?: CompanySortOption;
   page?: number;
   page_size?: number;
 }
