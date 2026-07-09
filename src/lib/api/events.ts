@@ -23,18 +23,6 @@ export const eventsApi = {
     return res.data;
   },
 
-  getForCompany: async (
-    companyId: string,
-    page = 1,
-    page_size = 20,
-  ): Promise<PaginatedResponse<EventListItem>> => {
-    const res = await apiClient.get<PaginatedResponse<EventListItem>>(
-      `/companies/${companyId}/events`,
-      { params: { page, page_size } },
-    );
-    return res.data;
-  },
-
   getStatsForCompany: async (companyId: string): Promise<EventStatsResponse> => {
     const res = await apiClient.get<EventStatsResponse>(`/companies/${companyId}/events/stats`);
     return res.data;

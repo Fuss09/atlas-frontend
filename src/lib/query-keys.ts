@@ -29,7 +29,6 @@ export const queryKeys = {
     list: (params: unknown) => ["events", "list", params] as const,
     detail: (id: string) => ["events", "detail", id] as const,
     types: ["events", "types"] as const,
-    forCompany: (companyId: string, page: number) => ["companies", companyId, "events", page] as const,
     statsForCompany: (companyId: string) => ["companies", companyId, "events", "stats"] as const,
   },
   opportunities: {

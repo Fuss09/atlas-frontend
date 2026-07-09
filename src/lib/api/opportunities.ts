@@ -1,15 +1,8 @@
 import { apiClient } from "./client";
-import type { OpportunityListItem, OpportunityScoreResponse, PaginatedResponse } from "@/types";
+import type { OpportunityListItem, OpportunityScoreResponse, OpportunitySearchParams, PaginatedResponse } from "@/types";
 
 export const opportunitiesApi = {
-  list: async (params?: {
-    conviction?: string;
-    sector?: string;
-    theme_id?: string;
-    min_score?: number;
-    page?: number;
-    page_size?: number;
-  }): Promise<PaginatedResponse<OpportunityListItem>> => {
+  list: async (params?: OpportunitySearchParams): Promise<PaginatedResponse<OpportunityListItem>> => {
     const res = await apiClient.get<PaginatedResponse<OpportunityListItem>>("/opportunities", {
       params,
     });
