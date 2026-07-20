@@ -4,38 +4,34 @@ import * as React from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToggleWatchlist, useWatchlistIds } from "@/hooks/use-watchlist";
 import { cn } from "@/lib/utils";
 
 interface WatchlistButtonProps {
   companyId: string;
+  /** @deprecated state now comes from the watchlist cache; kept for call-site compatibility. */
   isWatched?: boolean;
   size?: "sm" | "default" | "icon";
   className?: string;
 }
 
 /**
- * Star toggle to add/remove a company from the watchlist.
+ * Star toggle backed by the real Watchlist module (Sprint 7).
  *
- * Feature placeholder: no backend endpoint exists yet for watchlists.
- * The button is fully wired for UI state and interaction so it can be
- * connected to a real mutation the moment the Watchlist module ships —
- * no visual or layout changes will be required at that point.
- *
- * The tooltip says "not saved yet" rather than a plain "Add to
- * watchlist" — toggling the star does change visually, and without
- * that context a tester would reasonably expect it to persist across
- * a reload, then be confused when it doesn't. Honest about the
- * placeholder's current limits rather than silently simulating a
- * feature that isn't there yet.
+ * State comes from the shared `watchlist/ids` cache — one request for the
+ * whole page, every star derives its own state from the same set, so all
+ * instances of the same company stay in sync. Toggling is optimistic: the
+ * star flips instantly, and rolls back if the request fails.
  */
-export function WatchlistButton({ companyId: _companyId, isWatched = false, size = "icon", className }: WatchlistButtonProps) {
-  const [watched, setWatched] = React.useState(isWatched);
+export function WatchlistButton({ companyId, size = "icon", className }: WatchlistButtonProps) {
+  const { ids } = useWatchlistIds();
+  const toggle = useToggleWatchlist();
+  const watched = ids.has(companyId);
 
   const handleToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO(watchlist-module): persist via POST /watchlist when the endpoint ships.
-    setWatched((prev) => !prev);
+    toggle.mutate({ companyId, watched });
   };
 
   return (
@@ -53,7 +49,7 @@ export function WatchlistButton({ companyId: _companyId, isWatched = false, size
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {watched ? "Removed (not saved yet)" : "Watchlist — coming soon"}
+        {watched ? "Remove from watchlist" : "Add to watchlist"}
       </TooltipContent>
     </Tooltip>
   );

@@ -42,6 +42,11 @@ export const queryKeys = {
     stats: ["graph", "stats"] as const,
     forCompany: (companyId: string, depth: number) => ["companies", companyId, "graph", depth] as const,
   },
+  watchlist: {
+    all: ["watchlist"] as const,
+    list: ["watchlist", "list"] as const,
+    ids: ["watchlist", "ids"] as const,
+  },
   discovery: {
     sources: ["discovery", "sources"] as const,
     jobs: ["discovery", "jobs"] as const,

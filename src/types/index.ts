@@ -6,3 +6,4 @@ export * from "./event";
 export * from "./opportunity";
 export * from "./graph";
 export * from "./discovery";
+export * from "./watchlist";
