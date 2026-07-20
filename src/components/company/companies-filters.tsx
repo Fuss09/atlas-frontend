@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AddCompanyDialog } from "@/components/company/add-company-dialog";
 import { COMPANY_SORT_LABELS, type CompanySortOption } from "@/types";
 
 interface CompaniesFiltersProps {
@@ -85,6 +86,7 @@ export function CompaniesFilters({ sectors, countries }: CompaniesFiltersProps) 
 
   return (
     <aside className="space-y-6">
+      <AddCompanyDialog />
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
