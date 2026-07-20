@@ -7,3 +7,4 @@ export * from "./opportunities";
 export * from "./graph";
 export * from "./discovery";
 export * from "./watchlist";
+export * from "./catalysts";

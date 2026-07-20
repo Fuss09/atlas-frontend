@@ -47,6 +47,10 @@ export const queryKeys = {
     list: ["watchlist", "list"] as const,
     ids: ["watchlist", "ids"] as const,
   },
+  catalysts: {
+    upcoming: (horizonDays: number) => ["catalysts", "upcoming", horizonDays] as const,
+    forCompany: (companyId: string) => ["companies", companyId, "catalysts"] as const,
+  },
   discovery: {
     sources: ["discovery", "sources"] as const,
     jobs: ["discovery", "jobs"] as const,
