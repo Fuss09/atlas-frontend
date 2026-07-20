@@ -16,9 +16,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { cn } from "@/lib/utils";
+import type { ConvictionLevel } from "@/types";
 
 export function OpportunitiesExplorer() {
-  const [conviction, setConviction] = React.useState<string | undefined>();
+  const [conviction, setConviction] = React.useState<ConvictionLevel | undefined>();
   const [page, setPage] = React.useState(1);
   const [explainerOpen, setExplainerOpen] = React.useState(false);
 
@@ -42,7 +43,7 @@ export function OpportunitiesExplorer() {
       <ScoreExplainerBanner open={explainerOpen} onToggle={() => setExplainerOpen((o) => !o)} />
 
       <div className="flex items-center gap-3">
-        <Select value={conviction} onValueChange={(v) => setConviction(v === "all" ? undefined : v)}>
+        <Select value={conviction} onValueChange={(v) => setConviction(v === "all" ? undefined : (v as ConvictionLevel))}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Conviction level" />
           </SelectTrigger>
@@ -52,7 +53,6 @@ export function OpportunitiesExplorer() {
             <SelectItem value="high">High</SelectItem>
             <SelectItem value="moderate">Moderate</SelectItem>
             <SelectItem value="low">Low</SelectItem>
-            <SelectItem value="very_low">Very Low</SelectItem>
           </SelectContent>
         </Select>
       </div>
